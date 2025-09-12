@@ -1,11 +1,11 @@
 Package: MATH4753F25cyrus
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Labs for MATH4753 Fall 2025
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "Cyrus", "Delconte",
+      email = "csdelconte@gmail.com",
       role = c("aut", "cre")
     )
   )
