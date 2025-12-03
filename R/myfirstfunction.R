@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-#' myfurstfunction(1:10)
+#' myfirstfunction(1:10)
 myfirstfunction <- function(x) {
   y <- x^2
   plot(y ~ x)

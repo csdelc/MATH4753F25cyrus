@@ -16,5 +16,5 @@ A list with components 'x' and 'y', where 'y' is the square of 'x'.
 My First Function
 }
 \examples{
-myfurstfunction(1:10)
+myfirstfunction(1:10)
 }

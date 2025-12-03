@@ -1,0 +1,50 @@
+---
+title: "Birthday"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Birthday}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# 1. Derivation
+
+The birthday problem considers a population of $x$ people, wherein at least 2 of those people share the same birthday. $P(A)$ is the probability that at least two people share a birthday, and let $P(\bar{A})$ be the probability that everyone has unique birthdays. 
+
+$P(\bar{A})$ can be calculated by:
+$\begin{center}$
+$P(\bar{A})$ = $\frac{365}{365} \cdot \frac{365-1}{365} \cdot ... \cdot \frac{365-x+1}{365}$
+$\end{center}$
+$P(\bar{A})$ is written more compactly as:
+$\begin{center}$
+$P(\bar{A})$ = $\frac{365!}{(365-x)! \cdot 365}$
+$\end{center}$
+Then, visualizing $P(A)$:
+$\begin{center}$
+$P(A)$ = $1-P(\bar{A})$ = $1-\frac{365!}{(365-x)! \cdot 365}$
+$\end{center}$
+
+#2. Reforming this formula using lfactorial() and lchoose()
+Using the image provided by Dr. Stewart:
+
+!["Formula Derivation and lfactorial(), lchoose()"](imagederivationbirthdayprob.png){ width=70% }
+
+#3. The Actual Birthday Function
+```{r}
+birthday <- function(x){
+  1 - exp(lchoose(365,x) + lfactorial(x) -x*log(365))
+}
+```
+
+#4. Birthday Function Example
+```{r setup}
+library(MATH4753F25cyrus)
+birthday(20:25)
+```
