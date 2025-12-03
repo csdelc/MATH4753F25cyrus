@@ -6,7 +6,7 @@
 #' @param b maximum value/upper limit of the distribution
 #'
 #' @importFrom graphics lines
-#' @importFrom stats density, dunif, runif
+#' @importFrom stats density dunif runif
 #'
 #' @returns a histogram plot of the uniform central limit theorem
 #' @export
