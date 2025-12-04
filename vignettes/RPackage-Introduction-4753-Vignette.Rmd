@@ -1,0 +1,231 @@
+---
+title: "RPackage-Introduction-4753-Vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RPackage-Introduction-4753-Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 10, 
+  fig.height = 6, 
+  out.width = "80%"
+)
+```
+
+# Documenting 4 Functions from the R-package in MATH-4753
+
+Opening the package
+
+```{r setup}
+library(MATH4753F25cyrus)
+```
+
+## Summary
+
+This package is a grouping of work from the MATH-4753 course. Multiple functions (in total 10) and data sets (in total 2) from assignments throughout the semester have been added to the package, documented, uploaded to github, and checked for any mishaps to create a complete package. This vignette includes 4 of those functions to highlight parts of the package created.
+
+## Functions: Descriptions, Code, and Examples
+
+### Function 1: My N Curve
+
+The function myncurve uses the parameters mu (mean), sigma (standard deviation), and a (a value that defines the probability) to calculate and return the mean, standard deviation, a, and area components along with a plot.
+
+```{r}
+myncurve = function(mu, sigma, a) {
+  #plot a normal curve
+  curve((dnorm(x, mean = mu, sd = sigma)),
+        xlim = c((mu - 3*sigma), (mu + 3*sigma)),
+                 main = paste("P(X <=", a, ")"),
+                 ylab = "Density",
+                 xlab = "x")
+  #shading polygon area
+  xval = seq((mu - 3*sigma), a, length = 1000)
+  yval = dnorm(xval, mean = mu, sd = sigma)
+  polygon(c(xval, a), c(yval, 0), col = "#9482FF")
+
+  #calculate probability/area under curve
+  area = round(pnorm(a, mean = mu, sd = sigma),4)
+
+  #return list
+  return(list(mu = mu, sigma = sigma,  a = a, area = area))
+}
+```
+
+Example:
+
+```{r}
+myncurve(mu=5, sigma=3, a=6)
+```
+
+
+### Function 2: Scatter Histogram
+
+In the scatterhist function, the parameters x, y, xlab, and ylab represent 2 quantitative vectors and the graph labels for each axis, respectively. They then return a scatterplot of x vs. y with marginal histograms.
+
+```{r}
+scatterhist = function(x, y, xlab="", ylab=""){
+  zones=matrix(c(2,0,1,3), ncol=2, byrow=TRUE)
+  layout(zones, widths=c(4/5,1/5), heights=c(1/5,4/5))
+  xhist = hist(x, plot=FALSE)
+  yhist = hist(y, plot=FALSE)
+  top = max(c(xhist$counts, yhist$counts))
+  par(mar=c(3,3,1,1))
+  plot(x,y)
+  par(mar=c(0,3,1,1))
+  barplot(xhist$counts, axes=FALSE, ylim=c(0, top), space=0)
+  par(mar=c(3,0,1,1))
+  barplot(yhist$counts, axes=FALSE, xlim=c(0, top), space=0, horiz=TRUE)
+  par(oma=c(3,3,0,0))
+  mtext(xlab, side=1, line=1, outer=TRUE, adj=0,
+        at=.8 * (mean(x) - min(x))/(max(x)-min(x)))
+  mtext(ylab, side=2, line=1, outer=TRUE, adj=0,
+        at=(.8 * (mean(y) - min(y))/(max(y) - min(y))))
+}
+```
+
+Example:
+
+```{r}
+scatterhist(x=1:10,y=11:20)
+```
+
+
+### Function 3: N-Tickets
+
+The parameters for ntickets are N, the total amount of seats available on a flight, gamma, the probability of an airline overbooking a flight, and p, the likelihood a passenger will show. For this function, there are two methods to calculating the optimal tickets sold: discrete and continuous. The function returns plots and values for both.
+
+```{r}
+ntickets = function(N, gamma, p){
+
+  #range for tickets
+  tixrange <- seq(N, N+50, by = 1)
+
+## discrete objective ticket number
+  #Formula for discrete objective where we know that:
+  # 1 - gamma - P(X <= N), considering X~Bin(n, p)
+  obj <- 1 - gamma - pbinom(N, size=tixrange, p)
+
+  #indexing the closest term to 0 (minimum) for out objective
+  min <- which.min(abs(obj))
+
+  #find minimum n-value for the discrete method:
+  nd <- tixrange[min]
+
+  #plotting discrete objective line
+  plot(tixrange, obj, type = "l", lty = "dotdash", col = "black",
+       main = paste("Objective v. n to find optimal tickets sold\n(", tixrange[min],") gamma=", gamma, ", N =", N, "discrete", sep = ""),
+       xlab = "n", ylab = "Objective"
+  )
+
+  #plot points along the line
+  points(tixrange, obj, pch = 21, col = "black", bg = "blue", cex = .75)
+
+  #plot point to show optimal # of tickets sold
+  points(tixrange[min], obj[min], pch = 21, col = "yellow", cex = 1)
+
+  #plot vertical/horizontal lines that intersect with optimized point
+  abline(h = 0, col = "red", lty = 1, lwd = 2.25)
+  abline(v = tixrange[min], col = "red", lty = 1, lwd = 2.25)
+
+## continuous approximation objectives
+  # approximation through P(X <= N) using z-score to find outlier
+  z <- (N+.5 - tixrange*p)/sqrt(tixrange*p*(1-p))
+  approxp <- pnorm(z)
+  contapprox <- 1-gamma-approxp
+
+  # find min-index for continuous approx (closest to 0)
+  mincont <- which.min(abs(contapprox))
+
+  #minimum n-value using ticket range
+  nc <- tixrange[mincont]
+
+  #plots the line for continuous objective
+  plot(tixrange, contapprox, type = "l", col = "black", lwd = 1,
+       main = paste("Objective vs n to find optimal tickets sold\n(", tixrange[mincont],") gamma=", gamma, ", N =", N, "continuous", sep = ""),
+       xlab = "n", ylab = "Objective"
+  )
+
+  #plot point to show the optimal # of tickets
+  points(tixrange[mincont], obj[mincont], pch = 21, col = "yellow", cex = 1)
+
+  #plot vertical and horizontal lines that intersect with optimized point
+  abline(h = 0, col = "blue", lty = 1)
+  abline(v = tixrange[mincont], col = "blue", lty = 1)
+
+  #returning the list of values for: nd, nc, N, p, and gamma
+  return(list(nd=nd, nc=nc, N=N, p=p, gamma=gamma))
+}
+```
+
+Example:
+
+```{r}
+ntickets(N=400, gamma = .02, p = .95)
+```
+
+### Function 4: My Boot Adjusted
+
+The bootstrap adjusted function uses the parameters x, fun, alpha, and cx which are defined as the number of iterations of the sample, the sample size, the function to be used (eg.: mean, variance), the confidence level (confidence = 1 - alpha), and a constant value, respectively. There is also the option for additional parameters. The function returns a plot of the bootstrap function.
+
+```{r}
+mybootadj = function(iter=10000,x,fun="mean",alpha=0.05,cx=1.5,...){
+  #Notice where the ... is repeated in the code
+  n=length(x)   #sample size
+
+  y=sample(x,n*iter,replace=TRUE)
+  rs.mat=matrix(y,nrow=n,ncol=iter,byrow=TRUE)
+  xstat=apply(rs.mat,2,fun) # xstat is a vector and will have iter values in it
+  ci=quantile(xstat,c(alpha/2,1-alpha/2))# Nice way to form a
+  # confidence interval
+  # A histogram follows
+  # The object para will contain the parameters used to make the histogram
+  para=hist(xstat,freq=FALSE,las=1,
+            main=paste("Histogram of Bootstrap sample
+statistics","\n","alpha=",alpha," iter=",iter,sep=""),
+            ...)
+
+  #mat will be a matrix that contains the data, this is done so that I can use apply()
+  mat=matrix(x,nrow=length(x),ncol=1,byrow=TRUE)
+
+  #pte is the point estimate
+  #This uses whatever fun is
+  pte = apply(mat,2,fun)
+  abline(v = pte, lwd = 3,col = "Black") # Vertical line
+  segments(ci[1], 0 ,ci[2],0, lwd = 4)      # Make the segment for the ci
+  text(ci[1],0,paste("(",round(ci[1],2),sep=""),col="Black",cex=cx)
+  text(ci[2],0,paste(round(ci[2],2),")",sep=""),col="Black",cex=cx)
+  # plot the point estimate 1/2 way up the density
+  text(pte,max(para$density)/2,round(pte,2),cex=cx)
+}
+
+```
+
+Example:
+
+```{r}
+mybootadj(iter=10000, x=sample(20, 10), fun="mean", alpha=0.05, xlab="mean", col="yellow")
+```
+
+## Data: Description, Data, and Header
+
+### Data 1: DDT
+
+The DDT data set details fish, fish species, the mile they are sampled at, the river they travel in, their length, and weight. Ultimately it finds their DDT concentration within the TN river valley
+
+```{r}
+head(ddt)
+```
+
+### Data 2: FIREDAM
+
+The FIREDAM data det details the fire damage and distance from the fire station the damage occurred at.
+
+```{r}
+head(fire)
+```
+

@@ -1,7 +1,8 @@
 #' DDT
 #'
-#' A dataset detailing fish, fish species, length they travel, river they travel
-#' etcetera ... and ultimately their DDT concentration within the TN river valley
+#' The DDT data set details fish, fish species, the mile they are sampled at,
+#' the river they travel in, their length, and weight. Ultimately it finds
+#' their DDT concentration within the TN river valley
 #'
 #' @format ## `ddt`
 #' A data frame with 144 rows and 6 columns:
